@@ -13,50 +13,52 @@
     <div id="productList" class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6"></div>
   </div>
 
-  <script type="module">
-    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
-    import { getFirestore, collection, getDocs } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+<script type="module">
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+  import { getFirestore, collection, getDocs } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 
-    const firebaseConfig = {
-      apiKey: "AIzaSyA8IensKclYAvGB1QyzaavqURIgH5IKH_I",
-      authDomain: "maclame-c7e9c.firebaseapp.com",
-      projectId: "maclame-c7e9c",
-      storageBucket: "maclame-c7e9c.firebasestorage.app",
-      messagingSenderId: "857173133731",
-      appId: "1:857173133731:web:d4fd93772e34a86181b216",
-      measurementId: "G-TZCS4QL10T"
-    };
+  const firebaseConfig = {
+    apiKey: "AIzaSyA8IensKclYAvGB1QyzaavqURIgH5IKH_I",
+    authDomain: "maclame-c7e9c.firebaseapp.com",
+    projectId: "maclame-c7e9c",
+    storageBucket: "maclame-c7e9c.firebasestorage.app",
+    messagingSenderId: "857173133731",
+    appId: "1:857173133731:web:d4fd93772e34a86181b216",
+    measurementId: "G-TZCS4QL10T"
+  };
 
-    const app = initializeApp(firebaseConfig);
-    const db = getFirestore(app);
+  const app = initializeApp(firebaseConfig);
+  const db = getFirestore(app);
+  const productList = document.getElementById("productList");
 
-    const productList = document.getElementById("productList");
+  async function loadProducts() {
+    const querySnapshot = await getDocs(collection(db, "products"));
+    const products = [];
 
-    async function loadProducts() {
-      const querySnapshot = await getDocs(collection(db, "products"));
-      const products = [];
+    querySnapshot.forEach((doc) => {
+      const data = doc.data();
+      data.id = doc.id;
+      products.push(data);
+    });
 
-      querySnapshot.forEach((doc) => {
-        const data = doc.data();
-        data.id = doc.id;
-        products.push(data);
-      });
+    renderProducts(products);
+  }
 
-      renderProducts(products);
-    }
+  // ✅ Cập nhật phần này: hiển thị 3 sản phẩm đầu có badge "Mới"
+  function renderProducts(products) {
+    productList.innerHTML = products.map((p, i) => `
+      <div class="bg-white rounded-lg shadow p-4 text-center relative">
+        ${i < 3 ? '<div class="absolute top-2 left-2 bg-red-500 text-white text-xs px-2 py-1 rounded">Mới</div>' : ''}
+        <a href="${p.link}" target="_blank">
+          <img src="${p.image}" alt="${p.name}" class="w-full h-48 object-cover rounded mb-2 transition hover:scale-105 duration-200" />
+        </a>
+        <h2 class="text-lg font-semibold">${p.name}</h2>
+      </div>
+    `).join("");
+  }
 
-    function renderProducts(products) {
-      productList.innerHTML = products.map(p => `
-        <div class="bg-white rounded-lg shadow p-4 text-center">
-          <a href="${p.link}" target="_blank">
-            <img src="${p.image}" alt="${p.name}" class="w-full h-48 object-cover rounded mb-2 transition hover:scale-105 duration-200" />
-          </a>
-          <h2 class="text-lg font-semibold">${p.name}</h2>
-        </div>
-      `).join("");
-    }
+  loadProducts();
+</script>
 
-    loadProducts();
-  </script>
 </body>
 </html>
