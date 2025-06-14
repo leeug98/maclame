@@ -1,0 +1,86 @@
+
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>maclame | Sản phẩm</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gray-100 text-gray-800">
+  <div class="max-w-4xl mx-auto p-4">
+    <h1 class="text-2xl font-bold text-center mb-6">Danh sách sản phẩm</h1>
+
+    <div class="flex flex-col sm:flex-row justify-between items-center mb-4 gap-2">
+      <input id="searchInput" type="text" placeholder="Tìm sản phẩm..." class="w-full sm:w-1/2 p-2 border border-gray-300 rounded" />
+      <select id="categoryFilter" class="w-full sm:w-1/3 p-2 border border-gray-300 rounded">
+        <option value="">Tất cả danh mục</option>
+      </select>
+    </div>
+
+    <div id="productList" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6"></div>
+  </div>
+
+  <!-- Firebase SDK -->
+  <script type="module">
+    import {{ initializeApp }} from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+    import {{ getFirestore, collection, getDocs }} from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+
+    const firebaseConfig = {{
+      apiKey: "AIzaSyA8IensKclYAvGB1QyzaavqURIgH5IKH_I",
+      authDomain: "maclame-c7e9c.firebaseapp.com",
+      projectId: "maclame-c7e9c",
+      storageBucket: "maclame-c7e9c.firebasestorage.app",
+      messagingSenderId: "857173133731",
+      appId: "1:857173133731:web:d4fd93772e34a86181b216",
+      measurementId: "G-TZCS4QL10T"
+    }};
+
+    const app = initializeApp(firebaseConfig);
+    const db = getFirestore(app);
+
+    const productList = document.getElementById("productList");
+    const searchInput = document.getElementById("searchInput");
+    const categoryFilter = document.getElementById("categoryFilter");
+    let allProducts = [];
+
+    async function loadProducts() {{
+      const querySnapshot = await getDocs(collection(db, "products"));
+      let categories = new Set();
+
+      querySnapshot.forEach((doc) => {{
+        const data = doc.data();
+        data.id = doc.id;
+        allProducts.push(data);
+        categories.add(data.category);
+      }});
+
+      categoryFilter.innerHTML += [...categories].map(cat => `<option value="${{cat}}">${{cat}}</option>`).join("");
+      renderProducts(allProducts);
+    }}
+
+    function renderProducts(products) {{
+      const keyword = searchInput.value.toLowerCase();
+      const selectedCategory = categoryFilter.value;
+      const filtered = products.filter(p => (
+        (!keyword || p.name.toLowerCase().includes(keyword)) &&
+        (!selectedCategory || p.category === selectedCategory)
+      ));
+
+      productList.innerHTML = filtered.map(p => `
+        <div class="bg-white p-4 rounded shadow">
+          <img src="${{p.image}}" alt="${{p.name}}" class="w-full h-48 object-cover mb-2 rounded" />
+          <h2 class="text-lg font-semibold">${{p.name}}</h2>
+          <p class="text-sm text-gray-500 mb-2">${{p.category}}</p>
+          <p class="text-red-500 font-bold">${{p.price.toLocaleString()}}₫</p>
+        </div>
+      `).join("");
+    }}
+
+    searchInput.addEventListener("input", () => renderProducts(allProducts));
+    categoryFilter.addEventListener("change", () => renderProducts(allProducts));
+
+    loadProducts();
+  </script>
+</body>
+</html>
