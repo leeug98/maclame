@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>maclame | Sản phẩm</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-white text-gray-800 font-sans">
+  <div class="max-w-xl mx-auto p-6 space-y-6">
+    <h1 class="text-3xl font-bold text-center mb-4">Sản phẩm nổi bật</h1>
+
+    <div id="productList" class="flex flex-col gap-6"></div>
+  </div>
+
+  <!-- Firebase SDK -->
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+    import { getFirestore, collection, getDocs } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+
+    const firebaseConfig = {
+      apiKey: "AIzaSyA8IensKclYAvGB1QyzaavqURIgH5IKH_I",
+      authDomain: "maclame-c7e9c.firebaseapp.com",
+      projectId: "maclame-c7e9c",
+      storageBucket: "maclame-c7e9c.firebasestorage.app",
+      messagingSenderId: "857173133731",
+      appId: "1:857173133731:web:d4fd93772e34a86181b216",
+      measurementId: "G-TZCS4QL10T"
+    };
+
+    const app = initializeApp(firebaseConfig);
+    const db = getFirestore(app);
+    const productList = document.getElementById("productList");
+
+    async function loadProducts() {
+      const querySnapshot = await getDocs(collection(db, "products"));
+      const products = [];
+
+      querySnapshot.forEach((doc) => {
+        const data = doc.data();
+        data.id = doc.id;
+        products.push(data);
+      });
+
+      renderProducts(products);
+    }
+
+    function renderProducts(products) {
+      productList.innerHTML = products.map((p, i) => `
+        <div class="relative bg-white rounded-2xl shadow-md p-4 text-center border border-gray-200">
+          ${i < 3 ? '<div class="absolute top-2 left-2 bg-red-500 text-white text-xs px-2 py-1 rounded-full">Mới</div>' : ''}
+          <a href="${p.link}" target="_blank" class="block">
+            <img src="${p.image}" alt="${p.name}" class="w-40 h-40 mx-auto object-cover rounded-xl transition hover:scale-105 duration-200" />
+          </a>
+          <h2 class="text-lg font-semibold mt-3">${p.name}</h2>
+        </div>
+      `).join("");
+    }
+
+    loadProducts();
+  </script>
+</body>
+</html>
