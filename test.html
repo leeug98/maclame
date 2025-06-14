@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>maclame</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-black text-gray-100 font-sans min-h-screen flex items-center justify-center">
+
+  <!-- Khối trắng chứa avatar + sản phẩm -->
+  <div class="relative bg-white text-gray-800 max-w-xl w-full p-6 rounded-2xl shadow-2xl">
+
+    <!-- ✅ Nút Follow đặt đúng góc trái trong khối trắng -->
+    <button
+      class="absolute top-4 left-4 flex items-center gap-2 px-4 py-1.5 rounded-full bg-black text-white shadow hover:opacity-90 active:scale-95 transition-all duration-150">
+      <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+          d="M5.121 17.804A8.001 8.001 0 0112 16c1.657 0 3.183.506 4.379 1.362M15 12a3 3 0 10-6 0 3 3 0 006 0z" />
+      </svg>
+      <span class="text-sm font-medium">Follow</span>
+    </button>
+
+    <!-- Avatar -->
+    <div class="flex flex-col items-center space-y-3 mt-6">
+      <img src="https://i.imgur.com/MacLameLogo.png" class="w-32 h-32 rounded-full border-2 border-white shadow-md object-cover" />
+      <h1 class="text-3xl font-bold text-gray-800">@maclame98</h1>
+      <p class="text-base text-gray-500 italic">Mua đồ xinh ở bên dưới nha 💖</p>
+    </div>
+
+    <!-- Danh sách sản phẩm -->
+    <div class="mt-8 space-y-4">
+      <div class="bg-gray-50 rounded-lg p-4 text-center shadow">
+        <a href="https://shopee.vn" target="_blank">
+          <img src="https://via.placeholder.com/200x200" class="mx-auto rounded-xl mb-2" />
+        </a>
+        <h2 class="text-lg font-semibold">Áo phông trắng local</h2>
+      </div>
+    </div>
+
+  </div>
+
+</body>
+</html>
