@@ -52,11 +52,12 @@
 </div>
 
 <!--  Tabs lọc sản phẩm -->
-<div class="flex justify-center gap-4 mt-4">
-  <button onclick="filterProducts('all')" class="tab-btn active-tab">Home</button>
-  <button onclick="filterProducts('Áo')" class="tab-btn">Áo</button>
-  <button onclick="filterProducts('Set')" class="tab-btn">Set</button>
+<div class="flex justify-center gap-3 mt-4">
+  <button onclick="filterProducts('all')" class="tab-btn px-4 py-2 text-sm font-medium rounded-full transition hover:bg-gray-200 bg-black text-white">Home</button>
+  <button onclick="filterProducts('Áo')" class="tab-btn px-4 py-2 text-sm font-medium rounded-full transition hover:bg-gray-200 bg-white text-black">Áo</button>
+  <button onclick="filterProducts('Set')" class="tab-btn px-4 py-2 text-sm font-medium rounded-full transition hover:bg-gray-200 bg-white text-black">Set</button>
 </div>
+
 
 
     <!-- Danh sách sản phẩm -->
@@ -97,17 +98,7 @@
       renderProducts(products);
     }
 
-    function renderProducts(products) {
-      productList.innerHTML = products.map((p, i) => `
-        <div class="relative bg-white rounded-2xl shadow-md p-4 text-center border border-gray-200">
-          ${i < 3 ? '<div class="absolute top-2 left-2 bg-red-500 text-white text-xs px-2 py-1 rounded-full">Mới</div>' : ''}
-          <a href="${p.link}" target="_blank" class="block">
-            <img src="${p.image}" alt="${p.name}" class="w-40 h-40 mx-auto object-cover rounded-xl transition hover:scale-105 duration-200" />
-          </a>
-          <h2 class="text-lg font-semibold mt-3">${p.name}</h2>
-        </div>
-      `).join("");
-    }
+
 
 
 <!-- test -->
@@ -127,10 +118,20 @@ function renderProducts(products) {
 
 function filterProducts(category) {
   const buttons = document.querySelectorAll(".tab-btn");
-  buttons.forEach(btn => btn.classList.remove("active-tab"));
+  buttons.forEach(btn => {
+    btn.classList.remove("bg-black", "text-white");
+    btn.classList.add("bg-white", "text-black");
+  });
 
-  const activeBtn = Array.from(buttons).find(btn => btn.textContent === category || (category === 'all' && btn.textContent === 'Home'));
-  if (activeBtn) activeBtn.classList.add("active-tab");
+  const activeBtn = Array.from(buttons).find(btn => 
+    btn.textContent.trim().toLowerCase() === category.toLowerCase() || 
+    (category === 'all' && btn.textContent.trim().toLowerCase() === 'home')
+  );
+
+  if (activeBtn) {
+    activeBtn.classList.add("bg-black", "text-white");
+    activeBtn.classList.remove("bg-white", "text-black");
+  }
 
   if (category === 'all') {
     renderProducts(allProducts);
@@ -139,6 +140,7 @@ function filterProducts(category) {
     renderProducts(filtered);
   }
 }
+
 
 
 async function loadProducts() {
