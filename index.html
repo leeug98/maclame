@@ -106,7 +106,9 @@
       data.id = doc.id;
       allProducts.push(data);
     });
-   console.log("📦 Sản phẩm đã load:", allProducts); // ✅ thêm dòng này để kiểm tra
+   console.log("Đã chọn tab:", category);
+console.log("Các button:", [...buttons].map(b => b.getAttribute("data-category")));
+
     // ✅ Gọi đúng tab Home
     filterProducts('all');
   }
