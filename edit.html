@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8" />
+  <title>Quản lý sản phẩm | maclame</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gray-100 text-gray-800 p-4 font-sans">
+
+  <h1 class="text-2xl font-bold mb-4">Danh sách sản phẩm</h1>
+
+  <div id="productList" class="grid grid-cols-1 sm:grid-cols-2 gap-4"></div>
+
+  <div id="toast"
+    class="fixed top-4 left-1/2 transform -translate-x-1/2 bg-gray-900 text-white px-5 py-2 rounded-lg shadow opacity-0 transition-opacity duration-300 z-50 text-sm">
+    Toast Message
+  </div>
+
+  <!-- Firebase -->
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+    import {
+      getFirestore, collection, getDocs, doc, updateDoc, deleteDoc
+    } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+
+    const firebaseConfig = {
+      apiKey: "AIzaSyA8IensKclYAvGB1QyzaavqURIgH5IKH_I",
+      authDomain: "maclame-c7e9c.firebaseapp.com",
+      projectId: "maclame-c7e9c",
+      storageBucket: "maclame-c7e9c.appspot.com",
+      messagingSenderId: "857173133731",
+      appId: "1:857173133731:web:d4fd93772e34a86181b216",
+      measurementId: "G-TZCS4QL10T"
+    };
+
+    const app = initializeApp(firebaseConfig);
+    const db = getFirestore(app);
+    const productList = document.getElementById("productList");
+
+    async function loadProducts() {
+      const querySnapshot = await getDocs(collection(db, "products"));
+      productList.innerHTML = "";
+
+      querySnapshot.forEach((docSnap) => {
+        const data = docSnap.data();
+        const card = document.createElement("div");
+        card.className = "bg-white p-4 rounded-lg shadow";
+
+        card.innerHTML = `
+          <img src="${data.image}" class="w-full h-40 object-cover rounded-md mb-2">
+          <h2 class="font-semibold text-lg mb-1">${data.name}</h2>
+          <p class="text-sm text-gray-500 mb-2">${data.category || ''}</p>
+          <div class="flex gap-2">
+            <button class="edit-btn bg-yellow-500 text-white px-3 py-1 rounded text-sm" data-id="${docSnap.id}">Sửa</button>
+            <button class="delete-btn bg-red-500 text-white px-3 py-1 rounded text-sm" data-id="${docSnap.id}">Xóa</button>
+          </div>
+        `;
+        productList.appendChild(card);
+      });
+
+      addListeners();
+    }
+
+    function addListeners() {
+      document.querySelectorAll(".delete-btn").forEach(btn => {
+        btn.addEventListener("click", async () => {
+          const id = btn.getAttribute("data-id");
+          if (confirm("Bạn có chắc muốn xóa sản phẩm này?")) {
+            await deleteDoc(doc(db, "products", id));
+            showToast("Đã xóa sản phẩm!");
+            loadProducts();
+          }
+        });
+      });
+
+      document.querySelectorAll(".edit-btn").forEach(btn => {
+        btn.addEventListener("click", async () => {
+          const id = btn.getAttribute("data-id");
+          const ref = doc(db, "products", id);
+          const snap = await getDocs(collection(db, "products"));
+          const data = snap.docs.find(doc => doc.id === id)?.data();
+          if (!data) return;
+
+          const name = prompt("Tên mới:", data.name);
+          const link = prompt("Link mới:", data.link);
+          const image = prompt("Link ảnh mới:", data.image);
+          const category = prompt("Danh mục mới:", data.category || "");
+
+          if (name && link && image) {
+            await updateDoc(ref, { name, link, image, category });
+            showToast("Đã cập nhật sản phẩm!");
+            loadProducts();
+          }
+        });
+      });
+    }
+
+    function showToast(msg) {
+      const toast = document.getElementById("toast");
+      toast.textContent = msg;
+      toast.classList.remove("opacity-0");
+      toast.classList.add("opacity-100");
+      setTimeout(() => toast.classList.add("opacity-0"), 2000);
+    }
+
+    loadProducts();
+  </script>
+</body>
+</html>
