@@ -99,13 +99,16 @@
 
 <script type="module">
   import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
-  import { getFirestore, collection, query, getDocs, orderBy, startAfter, limit } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+  import {
+    getFirestore, collection, query, getDocs,
+    orderBy, startAfter, limit
+  } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 
   const firebaseConfig = {
     apiKey: "AIzaSyA8IensKclYAvGB1QyzaavqURIgH5IKH_I",
     authDomain: "maclame-c7e9c.firebaseapp.com",
     projectId: "maclame-c7e9c",
-    storageBucket: "maclame-c7e9c.firebasestorage.app",
+    storageBucket: "maclame-c7e9c.appspot.com",
     messagingSenderId: "857173133731",
     appId: "1:857173133731:web:d4fd93772e34a86181b216",
     measurementId: "G-TZCS4QL10T"
@@ -137,7 +140,7 @@
   }
 
   async function loadInitialProducts() {
-    const q = query(collection(db, "products"), orderBy("name"), limit(6));
+    const q = query(collection(db, "products"), orderBy("createdAt", "desc"), limit(6));
     const snapshot = await getDocs(q);
 
     const products = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
@@ -147,28 +150,32 @@
     lastVisible = snapshot.docs[snapshot.docs.length - 1];
   }
 
-async function loadMoreProducts() {
-  if (isLoading || !lastVisible) return;
-  isLoading = true;
-  document.getElementById('loadingSpinner').classList.remove('hidden');
+  async function loadMoreProducts() {
+    if (isLoading || !lastVisible) return;
+    isLoading = true;
+    document.getElementById('loadingSpinner')?.classList.remove('hidden');
 
-  const q = query(collection(db, "products"), orderBy("name"), startAfter(lastVisible), limit(6));
-  const snapshot = await getDocs(q);
+    const q = query(
+      collection(db, "products"),
+      orderBy("createdAt", "desc"),
+      startAfter(lastVisible),
+      limit(6)
+    );
+    const snapshot = await getDocs(q);
 
-  const newProducts = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
-  allProducts.push(...newProducts);
-  filterProducts(currentCategory, false);
+    const newProducts = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+    allProducts.push(...newProducts);
+    filterProducts(currentCategory, false);
 
-  if (!snapshot.empty) {
-    lastVisible = snapshot.docs[snapshot.docs.length - 1];
-  } else {
-    lastVisible = null;
+    if (!snapshot.empty) {
+      lastVisible = snapshot.docs[snapshot.docs.length - 1];
+    } else {
+      lastVisible = null;
+    }
+
+    document.getElementById('loadingSpinner')?.classList.add('hidden');
+    isLoading = false;
   }
-
-  document.getElementById('loadingSpinner').classList.add('hidden');
-  isLoading = false;
-}
-
 
   function filterProducts(category, reset = true) {
     currentCategory = category;
@@ -188,8 +195,7 @@ async function loadMoreProducts() {
       renderProducts(allProducts);
     } else {
       const filtered = allProducts.filter(p =>
-        p.category &&
-        p.category.toLowerCase().trim() === normalized
+        p.category && p.category.toLowerCase().trim() === normalized
       );
       renderProducts(filtered);
     }
@@ -206,7 +212,7 @@ async function loadMoreProducts() {
     });
   });
 
-  // ⬇️ Gắn infinite scroll observer
+  // Infinite scroll setup
   const sentinel = document.createElement('div');
   sentinel.id = 'scroll-sentinel';
   document.getElementById('productList').after(sentinel);
@@ -222,6 +228,7 @@ async function loadMoreProducts() {
 
   loadInitialProducts();
 </script>
+
 
 
 
