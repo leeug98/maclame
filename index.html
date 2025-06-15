@@ -125,28 +125,29 @@
 
 function filterProducts(category) {
   const buttons = document.querySelectorAll(".tab-btn");
-  
+
   buttons.forEach(btn => {
     const btnCategory = btn.getAttribute("data-category");
-    if (btnCategory === category) {
-      btn.classList.add("bg-black", "text-white");
-      btn.classList.remove("bg-white", "text-black");
-    } else {
-      btn.classList.remove("bg-black", "text-white");
-      btn.classList.add("bg-white", "text-black");
-    }
+    const isActive = btnCategory === category;
+    btn.classList.toggle("bg-black", isActive);
+    btn.classList.toggle("text-white", isActive);
+    btn.classList.toggle("bg-white", !isActive);
+    btn.classList.toggle("text-black", !isActive);
   });
 
-  if (category === 'all') {
+  const normalized = category.toLowerCase().trim();
+
+  if (normalized === 'all') {
     renderProducts(allProducts);
   } else {
     const filtered = allProducts.filter(p =>
-  p.category && p.category.toLowerCase().trim() === category.toLowerCase().trim()
-);
-
+      p.category &&
+      p.category.toLowerCase().trim() === normalized
+    );
     renderProducts(filtered);
   }
 }
+
 
 
   loadProducts();
