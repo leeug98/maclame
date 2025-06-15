@@ -85,18 +85,20 @@
     const db = getFirestore(app);
     const productList = document.getElementById("productList");
 
-    async function loadProducts() {
-      const querySnapshot = await getDocs(collection(db, "products"));
-      const products = [];
+async function loadProducts() {
+  const querySnapshot = await getDocs(collection(db, "products"));
+  allProducts = [];
 
-      querySnapshot.forEach((doc) => {
-        const data = doc.data();
-        data.id = doc.id;
-        products.push(data);
-      });
+  querySnapshot.forEach((doc) => {
+    const data = doc.data();
+    data.id = doc.id;
+    allProducts.push(data);
+  });
 
-      renderProducts(products);
-    }
+  // ✅ Hiển thị tất cả và làm tab Home active
+  filterProducts('all');
+}
+
 
 
 
