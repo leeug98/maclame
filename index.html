@@ -82,7 +82,7 @@
   import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
   import { getFirestore, collection, getDocs } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 
-  const firebaseConfig = {
+  window.firebaseConfig = {
     apiKey: "AIzaSyA8IensKclYAvGB1QyzaavqURIgH5IKH_I",
     authDomain: "maclame-c7e9c.firebaseapp.com",
     projectId: "maclame-c7e9c",
@@ -92,13 +92,15 @@
     measurementId: "G-TZCS4QL10T"
   };
 
-  const app = initializeApp(firebaseConfig);
-  const db = getFirestore(app);
+  const app = initializeApp(window.firebaseConfig);
+  window.db = getFirestore(app);
+</script>
+<script>
   const productList = document.getElementById("productList");
   let allProducts = [];
 
   async function loadProducts() {
-    const querySnapshot = await getDocs(collection(db, "products"));
+    const querySnapshot = await getDocs(collection(window.db, "products"));
     allProducts = [];
 
     querySnapshot.forEach((doc) => {
@@ -107,7 +109,6 @@
       allProducts.push(data);
     });
 
-    // ✅ Gọi đúng tab Home
     filterProducts('all');
   }
 
@@ -123,40 +124,31 @@
     `).join("");
   }
 
+  function filterProducts(category) {
+    const normalized = category.toLowerCase().trim();
+    const buttons = document.querySelectorAll(".tab-btn");
 
- </script>
-  <script>
-function filterProducts(category) {
-  const normalized = category.toLowerCase().trim();
+    buttons.forEach(btn => {
+      const btnCategory = btn.getAttribute("data-category")?.toLowerCase().trim();
+      const isActive = btnCategory === normalized;
+      btn.classList.toggle("bg-black", isActive);
+      btn.classList.toggle("text-white", isActive);
+      btn.classList.toggle("bg-white", !isActive);
+      btn.classList.toggle("text-black", !isActive);
+    });
 
-  const buttons = document.querySelectorAll(".tab-btn");
-
-  buttons.forEach(btn => {
-    const btnCategory = btn.getAttribute("data-category")?.toLowerCase().trim();
-
-    const isActive = btnCategory === normalized;
-
-    btn.classList.toggle("bg-black", isActive);
-    btn.classList.toggle("text-white", isActive);
-    btn.classList.toggle("bg-white", !isActive);
-    btn.classList.toggle("text-black", !isActive);
-  });
-
-  if (normalized === 'all') {
-    renderProducts(allProducts);
-  } else {
-    const filtered = allProducts.filter(p =>
-      p.category &&
-      p.category.toLowerCase().trim() === normalized
-    );
-    renderProducts(filtered);
+    if (normalized === 'all') {
+      renderProducts(allProducts);
+    } else {
+      const filtered = allProducts.filter(p =>
+        p.category &&
+        p.category.toLowerCase().trim() === normalized
+      );
+      renderProducts(filtered);
+    }
   }
-}
 
-
- loadProducts();
-
- 
+  loadProducts();
 </script>
 
 
