@@ -52,11 +52,22 @@
 </div>
 
 <!--  Tabs lọc sản phẩm -->
+
 <div class="flex justify-center gap-3 mt-4">
-  <button onclick="filterProducts('all')" class="tab-btn px-4 py-2 text-sm font-medium rounded-full transition hover:bg-gray-200 bg-black text-white">Home</button>
-  <button onclick="filterProducts('Áo')" class="tab-btn px-4 py-2 text-sm font-medium rounded-full transition hover:bg-gray-200 bg-white text-black">Áo</button>
-  <button onclick="filterProducts('Set')" class="tab-btn px-4 py-2 text-sm font-medium rounded-full transition hover:bg-gray-200 bg-white text-black">Set</button>
+  <button onclick="filterProducts('all')" data-category="all"
+    class="tab-btn px-4 py-2 text-sm font-medium rounded-full transition hover:bg-gray-200 bg-black text-white">
+    Home
+  </button>
+  <button onclick="filterProducts('Áo')" data-category="Áo"
+    class="tab-btn px-4 py-2 text-sm font-medium rounded-full transition hover:bg-gray-200 bg-white text-black">
+    Áo
+  </button>
+  <button onclick="filterProducts('Set')" data-category="Set"
+    class="tab-btn px-4 py-2 text-sm font-medium rounded-full transition hover:bg-gray-200 bg-white text-black">
+    Set
+  </button>
 </div>
+
 
 
 
@@ -112,32 +123,28 @@
     `).join("");
   }
 
-  function filterProducts(category) {
-    // reset tab styles
-    const buttons = document.querySelectorAll(".tab-btn");
-    buttons.forEach(btn => {
+function filterProducts(category) {
+  const buttons = document.querySelectorAll(".tab-btn");
+  
+  buttons.forEach(btn => {
+    const btnCategory = btn.getAttribute("data-category");
+    if (btnCategory === category) {
+      btn.classList.add("bg-black", "text-white");
+      btn.classList.remove("bg-white", "text-black");
+    } else {
       btn.classList.remove("bg-black", "text-white");
       btn.classList.add("bg-white", "text-black");
-    });
-
-    // đánh dấu active tab
-    const activeBtn = Array.from(buttons).find(btn =>
-      btn.textContent.trim().toLowerCase() === category.toLowerCase() ||
-      (category === 'all' && btn.textContent.trim().toLowerCase() === 'home')
-    );
-    if (activeBtn) {
-      activeBtn.classList.add("bg-black", "text-white");
-      activeBtn.classList.remove("bg-white", "text-black");
     }
+  });
 
-    // lọc sản phẩm
-    if (category === 'all') {
-      renderProducts(allProducts);
-    } else {
-      const filtered = allProducts.filter(p => p.category === category);
-      renderProducts(filtered);
-    }
+  if (category === 'all') {
+    renderProducts(allProducts);
+  } else {
+    const filtered = allProducts.filter(p => p.category === category);
+    renderProducts(filtered);
   }
+}
+
 
   loadProducts();
 </script>
