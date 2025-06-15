@@ -85,13 +85,21 @@
 <footer class="text-center text-xs text-gray-500 mt-8 pb-4">
   © Copyright by <span class="font-semibold">Tkozlee</span>
 </footer>
+<div id="loadingSpinner" class="flex justify-center py-4 hidden">
+  <svg class="animate-spin h-6 w-6 text-gray-500" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+    <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+    <path class="opacity-75" fill="currentColor"
+      d="M4 12a8 8 0 018-8v4a4 4 0 00-4 4H4z">
+    </path>
+  </svg>
+</div>
 
   </div>
 
 
 <script type="module">
   import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
-  import { getFirestore, collection, getDocs } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+  import { getFirestore, collection, query, getDocs, orderBy, startAfter, limit } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 
   const firebaseConfig = {
     apiKey: "AIzaSyA8IensKclYAvGB1QyzaavqURIgH5IKH_I",
@@ -106,34 +114,64 @@
   const app = initializeApp(firebaseConfig);
   const db = getFirestore(app);
   const productList = document.getElementById("productList");
+
   let allProducts = [];
-
-  async function loadProducts() {
-    const querySnapshot = await getDocs(collection(db, "products"));
-    allProducts = [];
-
-    querySnapshot.forEach((doc) => {
-      const data = doc.data();
-      data.id = doc.id;
-      allProducts.push(data);
-    });
-
-    filterProducts('all');
-  }
+  let lastVisible = null;
+  let isLoading = false;
+  let currentCategory = 'all';
 
   function renderProducts(products) {
-    productList.innerHTML = products.map((p, i) => `
-      <div class="relative bg-white rounded-2xl shadow-md p-4 text-center border border-gray-200">
+    productList.innerHTML = '';
+    products.forEach((p, i) => {
+      const div = document.createElement('div');
+      div.className = "relative bg-white rounded-2xl shadow-md p-4 text-center border border-gray-200";
+      div.innerHTML = `
         ${i < 3 ? '<div class="absolute top-2 left-2 bg-red-500 text-white text-xs px-2 py-1 rounded-full">Mới</div>' : ''}
         <a href="${p.link}" target="_blank" class="block">
           <img src="${p.image}" alt="${p.name}" class="w-40 h-40 mx-auto object-cover rounded-xl transition hover:scale-105 duration-200" />
         </a>
         <h2 class="text-lg font-semibold mt-3">${p.name}</h2>
-      </div>
-    `).join("");
+      `;
+      productList.appendChild(div);
+    });
   }
 
-  function filterProducts(category) {
+  async function loadInitialProducts() {
+    const q = query(collection(db, "products"), orderBy("name"), limit(6));
+    const snapshot = await getDocs(q);
+
+    const products = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+    allProducts = [...products];
+    renderProducts(allProducts);
+
+    lastVisible = snapshot.docs[snapshot.docs.length - 1];
+  }
+
+async function loadMoreProducts() {
+  if (isLoading || !lastVisible) return;
+  isLoading = true;
+  document.getElementById('loadingSpinner').classList.remove('hidden');
+
+  const q = query(collection(db, "products"), orderBy("name"), startAfter(lastVisible), limit(6));
+  const snapshot = await getDocs(q);
+
+  const newProducts = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+  allProducts.push(...newProducts);
+  filterProducts(currentCategory, false);
+
+  if (!snapshot.empty) {
+    lastVisible = snapshot.docs[snapshot.docs.length - 1];
+  } else {
+    lastVisible = null;
+  }
+
+  document.getElementById('loadingSpinner').classList.add('hidden');
+  isLoading = false;
+}
+
+
+  function filterProducts(category, reset = true) {
+    currentCategory = category;
     const normalized = category.toLowerCase().trim();
     const buttons = document.querySelectorAll(".tab-btn");
 
@@ -155,9 +193,12 @@
       );
       renderProducts(filtered);
     }
+
+    if (reset) {
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
   }
 
-  // 🎯 Gắn sự kiện tab
   document.querySelectorAll('.tab-btn').forEach(btn => {
     btn.addEventListener('click', () => {
       const category = btn.getAttribute('data-category');
@@ -165,8 +206,23 @@
     });
   });
 
-  loadProducts();
+  // ⬇️ Gắn infinite scroll observer
+  const sentinel = document.createElement('div');
+  sentinel.id = 'scroll-sentinel';
+  document.getElementById('productList').after(sentinel);
+
+  const observer = new IntersectionObserver((entries) => {
+    if (entries[0].isIntersecting && !isLoading) {
+      loadMoreProducts();
+    }
+  }, {
+    rootMargin: '200px',
+  });
+  observer.observe(sentinel);
+
+  loadInitialProducts();
 </script>
+
 
 
 
