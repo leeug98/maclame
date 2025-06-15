@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8">
+  <title>Thêm Sản Phẩm</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gray-100 flex items-center justify-center min-h-screen">
+
+  <div class="bg-white p-6 rounded-xl shadow-md max-w-md w-full">
+    <h1 class="text-xl font-bold mb-4 text-center text-gray-700">Thêm sản phẩm mới</h1>
+    <form id="productForm" class="space-y-4">
+
+      <input required type="text" id="name" placeholder="Tên sản phẩm"
+             class="w-full border border-gray-300 px-4 py-2 rounded-md focus:outline-none focus:ring">
+
+      <input required type="url" id="image" placeholder="Link ảnh (.jpg/.png)"
+             class="w-full border border-gray-300 px-4 py-2 rounded-md focus:outline-none focus:ring">
+
+      <input required type="url" id="link" placeholder="Link affiliate"
+             class="w-full border border-gray-300 px-4 py-2 rounded-md focus:outline-none focus:ring">
+
+      <select id="category" required
+              class="w-full border border-gray-300 px-4 py-2 rounded-md focus:outline-none focus:ring">
+        <option value="" disabled selected>Chọn danh mục</option>
+        <option>Áo</option>
+        <option>Chân Váy</option>
+        <option>Set</option>
+        <option>Đầm</option>
+        <option>Quần</option>
+        <option>Phụ Kiện</option>
+      </select>
+
+      <button type="submit"
+              class="bg-black text-white w-full py-2 rounded-md hover:bg-gray-900 transition">
+        Thêm sản phẩm
+      </button>
+    </form>
+
+    <div id="toast" class="mt-4 text-center text-sm text-green-600 hidden">Đã thêm sản phẩm thành công!</div>
+  </div>
+
+  <!-- Firebase SDK -->
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+    import { getFirestore, collection, addDoc, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+
+    const firebaseConfig = {
+      apiKey: "AIzaSyA8IensKclYAvGB1QyzaavqURIgH5IKH_I",
+      authDomain: "maclame-c7e9c.firebaseapp.com",
+      projectId: "maclame-c7e9c",
+      storageBucket: "maclame-c7e9c.appspot.com",
+      messagingSenderId: "857173133731",
+      appId: "1:857173133731:web:d4fd93772e34a86181b216",
+      measurementId: "G-TZCS4QL10T"
+    };
+
+    const app = initializeApp(firebaseConfig);
+    const db = getFirestore(app);
+
+    const form = document.getElementById('productForm');
+    const toast = document.getElementById('toast');
+
+    form.addEventListener('submit', async (e) => {
+      e.preventDefault();
+
+      const name = form.name.value.trim();
+      const image = form.image.value.trim();
+      const link = form.link.value.trim();
+      const category = form.category.value;
+
+      // Validate link ảnh
+      if (!/\.(jpg|jpeg|png)$/i.test(image)) {
+        toast.textContent = "Ảnh phải là .jpg hoặc .png!";
+        toast.className = "mt-4 text-center text-sm text-red-600";
+        toast.classList.remove("hidden");
+        return;
+      }
+
+      try {
+        await addDoc(collection(db, "products"), {
+          name, image, link, category,
+          createdAt: serverTimestamp()
+        });
+
+        toast.textContent = "✅ Đã thêm sản phẩm!";
+        toast.className = "mt-4 text-center text-sm text-green-600";
+        toast.classList.remove("hidden");
+        form.reset();
+
+      } catch (error) {
+        toast.textContent = "❌ Thêm thất bại!";
+        toast.className = "mt-4 text-center text-sm text-red-600";
+        toast.classList.remove("hidden");
+        console.error(error);
+      }
+
+      setTimeout(() => toast.classList.add("hidden"), 2500);
+    });
+  </script>
+</body>
+</html>
