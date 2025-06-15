@@ -48,25 +48,17 @@
   <img src="./images/91NzJyUS9Xb3JrLnBuZw.jpg" alt="maclame avatar"
        class="w-32 h-32 rounded-full border-2 border-white shadow-md object-cover">
   <h1 class="text-3xl font-bold text-gray-800">@maclame98</h1>
-  <p class="text-base text-gray-700 italic">Mua đồ xinh ở bên dưới nha v1.0💖</p>
+  <p class="text-base text-gray-700 italic">Mua đồ xinh ở bên dưới nha v1.01💖</p>
 </div>
 
 <!--  Tabs lọc sản phẩm -->
 
 <div class="flex justify-center gap-3 mt-4">
-  <button onclick="filterProducts('all')" data-category="all"
-    class="tab-btn px-4 py-2 text-sm font-medium rounded-full transition hover:bg-gray-200 bg-black text-white">
-    Home
-  </button>
-  <button onclick="filterProducts('Áo')" data-category="Áo"
-    class="tab-btn px-4 py-2 text-sm font-medium rounded-full transition hover:bg-gray-200 bg-white text-black">
-    Áo
-  </button>
-  <button onclick="filterProducts('Set')" data-category="Set"
-    class="tab-btn px-4 py-2 text-sm font-medium rounded-full transition hover:bg-gray-200 bg-white text-black">
-    Set
-  </button>
+  <button data-category="all" class="tab-btn px-4 py-2 rounded-full bg-black text-white">Home</button>
+  <button data-category="Áo" class="tab-btn px-4 py-2 rounded-full bg-white text-black">Áo</button>
+  <button data-category="Set" class="tab-btn px-4 py-2 rounded-full bg-white text-black">Set</button>
 </div>
+
 
 
 
@@ -77,12 +69,11 @@
   </div>
 
 
-  <!-- Firebase SDK -->
- <script type="module">
+<script type="module">
   import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
   import { getFirestore, collection, getDocs } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 
-  window.firebaseConfig = {
+  const firebaseConfig = {
     apiKey: "AIzaSyA8IensKclYAvGB1QyzaavqURIgH5IKH_I",
     authDomain: "maclame-c7e9c.firebaseapp.com",
     projectId: "maclame-c7e9c",
@@ -92,15 +83,13 @@
     measurementId: "G-TZCS4QL10T"
   };
 
-  const app = initializeApp(window.firebaseConfig);
-  window.db = getFirestore(app);
-</script>
-<script>
+  const app = initializeApp(firebaseConfig);
+  const db = getFirestore(app);
   const productList = document.getElementById("productList");
   let allProducts = [];
 
   async function loadProducts() {
-    const querySnapshot = await getDocs(collection(window.db, "products"));
+    const querySnapshot = await getDocs(collection(db, "products"));
     allProducts = [];
 
     querySnapshot.forEach((doc) => {
@@ -148,14 +137,17 @@
     }
   }
 
-  const interval = setInterval(() => {
-  if (window.db) {
-    clearInterval(interval);
-    loadProducts(); // chỉ chạy khi firebase đã sẵn sàng
-  }
-}, 100);
+  // 🎯 Gắn sự kiện tab
+  document.querySelectorAll('.tab-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+      const category = btn.getAttribute('data-category');
+      filterProducts(category);
+    });
+  });
 
+  loadProducts();
 </script>
+
 
 
 <script>
