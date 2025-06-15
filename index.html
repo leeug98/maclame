@@ -140,7 +140,10 @@ function filterProducts(category) {
   if (category === 'all') {
     renderProducts(allProducts);
   } else {
-    const filtered = allProducts.filter(p => p.category === category);
+    const filtered = allProducts.filter(p =>
+  p.category && p.category.toLowerCase().trim() === category.toLowerCase().trim()
+);
+
     renderProducts(filtered);
   }
 }
