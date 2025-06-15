@@ -148,7 +148,13 @@
     }
   }
 
-  loadProducts();
+  const interval = setInterval(() => {
+  if (window.db) {
+    clearInterval(interval);
+    loadProducts(); // chỉ chạy khi firebase đã sẵn sàng
+  }
+}, 100);
+
 </script>
 
 
