@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8">
+  <title>Thêm sản phẩm - Firebase</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gray-100 flex items-center justify-center min-h-screen">
+  <div class="bg-white shadow-lg p-8 rounded-xl w-full max-w-md relative">
+    <h1 class="text-xl font-bold mb-4">🛒 Thêm sản phẩm</h1>
+
+    <form id="productForm" class="space-y-4">
+      <input type="text" id="name" placeholder="Tên sản phẩm" required class="w-full px-4 py-2 border rounded" />
+      <input type="url" id="link" placeholder="Link sản phẩm (affiliate)" required class="w-full px-4 py-2 border rounded" />
+      <input type="file" id="imageFile" accept=".jpg,.jpeg,.png" required class="w-full px-4 py-2 border rounded" />
+      <input type="text" id="category" placeholder="Danh mục (Áo, Set...)" required class="w-full px-4 py-2 border rounded" />
+      <button type="submit" class="bg-black text-white px-4 py-2 rounded hover:bg-gray-800 w-full">
+        Thêm vào Firebase
+      </button>
+    </form>
+
+    <div id="toast"
+      class="fixed top-5 left-1/2 transform -translate-x-1/2 bg-gray-900 text-white px-5 py-3 rounded-xl shadow-lg text-sm opacity-0 pointer-events-none transition-opacity duration-300 z-50">
+      Đã thêm thành công!
+    </div>
+  </div>
+
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+    import { getFirestore, collection, addDoc } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+    import { getStorage, ref, uploadBytes, getDownloadURL } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-storage.js";
+
+    const firebaseConfig = {
+      apiKey: "AIzaSyA8IensKclYAvGB1QyzaavqURIgH5IKH_I",
+      authDomain: "maclame-c7e9c.firebaseapp.com",
+      projectId: "maclame-c7e9c",
+      storageBucket: "maclame-c7e9c.appspot.com",
+      messagingSenderId: "857173133731",
+      appId: "1:857173133731:web:d4fd93772e34a86181b216",
+      measurementId: "G-TZCS4QL10T"
+    };
+
+    const app = initializeApp(firebaseConfig);
+    const db = getFirestore(app);
+    const storage = getStorage(app);
+
+    const form = document.getElementById("productForm");
+    const toast = document.getElementById("toast");
+
+    function showToast(msg) {
+      toast.textContent = msg;
+      toast.classList.remove("opacity-0");
+      toast.classList.add("opacity-100");
+      setTimeout(() => toast.classList.add("opacity-0"), 2000);
+    }
+
+    form.addEventListener("submit", async (e) => {
+      e.preventDefault();
+
+      const name = document.getElementById("name").value.trim();
+      const link = document.getElementById("link").value.trim();
+      const file = document.getElementById("imageFile").files[0];
+      const category = document.getElementById("category").value.trim();
+
+      if (!file || !/\.(jpg|jpeg|png)$/i.test(file.name)) {
+        showToast("Chỉ chấp nhận ảnh .jpg hoặc .png");
+        return;
+      }
+
+      try {
+        // Upload ảnh lên Firebase Storage
+        const imageRef = ref(storage, `product-images/${Date.now()}_${file.name}`);
+        await uploadBytes(imageRef, file);
+        const imageUrl = await getDownloadURL(imageRef);
+
+        // Thêm sản phẩm vào Firestore
+        await addDoc(collection(db, "products"), {
+          name,
+          link,
+          image: imageUrl,
+          category
+        });
+
+        showToast("Đã thêm thành công!");
+        form.reset();
+
+        // Reload nếu dùng trong iframe hoặc trang chính
+        setTimeout(() => window.parent.location.reload(), 1000);
+      } catch (err) {
+        showToast("Lỗi: " + err.message);
+      }
+    });
+  </script>
+</body>
+</html>
