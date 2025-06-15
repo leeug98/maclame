@@ -5,6 +5,15 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>@maclame98 | Thời trang Genz</title>
   <script src="https://cdn.tailwindcss.com"></script>
+<style>
+  .tab-btn {
+    @apply px-4 py-2 text-sm font-medium rounded-full transition hover:bg-gray-200;
+  }
+  .active-tab {
+    @apply bg-black text-white;
+  }
+</style>
+
 </head>
 <body class="bg-black text-gray-100 font-sans min-h-screen flex items-center justify-center">
 
@@ -42,6 +51,12 @@
   <p class="text-base text-gray-700 italic">Mua đồ xinh ở bên dưới nha 💖</p>
 </div>
 
+<!--  Tabs lọc sản phẩm -->
+<div class="flex justify-center gap-4 mt-4">
+  <button onclick="filterProducts('all')" class="tab-btn active-tab">Home</button>
+  <button onclick="filterProducts('Áo')" class="tab-btn">Áo</button>
+  <button onclick="filterProducts('Set')" class="tab-btn">Set</button>
+</div>
 
 
     <!-- Danh sách sản phẩm -->
@@ -94,7 +109,40 @@
       `).join("");
     }
 
+
+<!-- test -->
+let allProducts = [];
+
+function renderProducts(products) {
+  productList.innerHTML = products.map((p, i) => `
+    <div class="relative bg-white rounded-2xl shadow-md p-4 text-center border border-gray-200">
+      ${i < 3 ? '<div class="absolute top-2 left-2 bg-red-500 text-white text-xs px-2 py-1 rounded-full">Mới</div>' : ''}
+      <a href="${p.link}" target="_blank" class="block">
+        <img src="${p.image}" alt="${p.name}" class="w-40 h-40 mx-auto object-cover rounded-xl transition hover:scale-105 duration-200" />
+      </a>
+      <h2 class="text-lg font-semibold mt-3">${p.name}</h2>
+    </div>
+  `).join("");
+}
+
+function filterProducts(category) {
+  const buttons = document.querySelectorAll(".tab-btn");
+  buttons.forEach(btn => btn.classList.remove("active-tab"));
+
+  const activeBtn = Array.from(buttons).find(btn => btn.textContent === category || (category === 'all' && btn.textContent === 'Home'));
+  if (activeBtn) activeBtn.classList.add("active-tab");
+
+  if (category === 'all') {
+    renderProducts(allProducts);
+  } else {
+    const filtered = allProducts.filter(p => p.category === category);
+    renderProducts(filtered);
+  }
+}
+
+
     loadProducts();
+
   </script>
 
 <script>
