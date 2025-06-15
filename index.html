@@ -12,12 +12,12 @@
   .active-tab {
     @apply bg-black text-white;
   }
-    .no-scrollbar::-webkit-scrollbar {
+  .no-scrollbar::-webkit-scrollbar {
     display: none;
   }
   .no-scrollbar {
-    -ms-overflow-style: none; /* IE */
-    scrollbar-width: none; /* Firefox */
+    -ms-overflow-style: none;  /* IE and Edge */
+    scrollbar-width: none;     /* Firefox */
   }
 </style>
 
@@ -61,7 +61,7 @@
 <!--  Tabs lọc sản phẩm -->
 
 <!-- Thanh tabs cuộn ngang -->
-<div class="overflow-x-auto no-scrollbar">
+<div class="overflow-x-auto no-scrollbar max-w-full">
   <div class="flex space-x-3 min-w-max px-2">
     <button data-category="all" class="tab-btn px-4 py-2 rounded-full bg-black text-white">Home</button>
     <button data-category="Áo" class="tab-btn px-4 py-2 rounded-full bg-white text-black">Áo</button>
