@@ -124,18 +124,20 @@
   }
 
 function filterProducts(category) {
+  const normalized = category.toLowerCase().trim();
+
   const buttons = document.querySelectorAll(".tab-btn");
 
   buttons.forEach(btn => {
-    const btnCategory = btn.getAttribute("data-category");
-    const isActive = btnCategory === category;
+    const btnCategory = btn.getAttribute("data-category")?.toLowerCase().trim();
+
+    const isActive = btnCategory === normalized;
+
     btn.classList.toggle("bg-black", isActive);
     btn.classList.toggle("text-white", isActive);
     btn.classList.toggle("bg-white", !isActive);
     btn.classList.toggle("text-black", !isActive);
   });
-
-  const normalized = category.toLowerCase().trim();
 
   if (normalized === 'all') {
     renderProducts(allProducts);
@@ -147,6 +149,7 @@ function filterProducts(category) {
     renderProducts(filtered);
   }
 }
+
 
 
 
