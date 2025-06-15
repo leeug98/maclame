@@ -67,98 +67,81 @@
 
 
   <!-- Firebase SDK -->
-  <script type="module">
-    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
-    import { getFirestore, collection, getDocs } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+ <script type="module">
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+  import { getFirestore, collection, getDocs } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 
-    const firebaseConfig = {
-      apiKey: "AIzaSyA8IensKclYAvGB1QyzaavqURIgH5IKH_I",
-      authDomain: "maclame-c7e9c.firebaseapp.com",
-      projectId: "maclame-c7e9c",
-      storageBucket: "maclame-c7e9c.firebasestorage.app",
-      messagingSenderId: "857173133731",
-      appId: "1:857173133731:web:d4fd93772e34a86181b216",
-      measurementId: "G-TZCS4QL10T"
-    };
+  const firebaseConfig = {
+    apiKey: "AIzaSyA8IensKclYAvGB1QyzaavqURIgH5IKH_I",
+    authDomain: "maclame-c7e9c.firebaseapp.com",
+    projectId: "maclame-c7e9c",
+    storageBucket: "maclame-c7e9c.firebasestorage.app",
+    messagingSenderId: "857173133731",
+    appId: "1:857173133731:web:d4fd93772e34a86181b216",
+    measurementId: "G-TZCS4QL10T"
+  };
 
-    const app = initializeApp(firebaseConfig);
-    const db = getFirestore(app);
-    const productList = document.getElementById("productList");
+  const app = initializeApp(firebaseConfig);
+  const db = getFirestore(app);
+  const productList = document.getElementById("productList");
+  let allProducts = [];
 
-async function loadProducts() {
-  const querySnapshot = await getDocs(collection(db, "products"));
-  allProducts = [];
+  async function loadProducts() {
+    const querySnapshot = await getDocs(collection(db, "products"));
+    allProducts = [];
 
-  querySnapshot.forEach((doc) => {
-    const data = doc.data();
-    data.id = doc.id;
-    allProducts.push(data);
-  });
+    querySnapshot.forEach((doc) => {
+      const data = doc.data();
+      data.id = doc.id;
+      allProducts.push(data);
+    });
 
-  // ✅ Hiển thị tất cả và làm tab Home active
-  filterProducts('all');
-}
-
-
-
-
-
-<!-- test -->
-let allProducts = [];
-
-function renderProducts(products) {
-  productList.innerHTML = products.map((p, i) => `
-    <div class="relative bg-white rounded-2xl shadow-md p-4 text-center border border-gray-200">
-      ${i < 3 ? '<div class="absolute top-2 left-2 bg-red-500 text-white text-xs px-2 py-1 rounded-full">Mới</div>' : ''}
-      <a href="${p.link}" target="_blank" class="block">
-        <img src="${p.image}" alt="${p.name}" class="w-40 h-40 mx-auto object-cover rounded-xl transition hover:scale-105 duration-200" />
-      </a>
-      <h2 class="text-lg font-semibold mt-3">${p.name}</h2>
-    </div>
-  `).join("");
-}
-
-function filterProducts(category) {
-  const buttons = document.querySelectorAll(".tab-btn");
-  buttons.forEach(btn => {
-    btn.classList.remove("bg-black", "text-white");
-    btn.classList.add("bg-white", "text-black");
-  });
-
-  const activeBtn = Array.from(buttons).find(btn => 
-    btn.textContent.trim().toLowerCase() === category.toLowerCase() || 
-    (category === 'all' && btn.textContent.trim().toLowerCase() === 'home')
-  );
-
-  if (activeBtn) {
-    activeBtn.classList.add("bg-black", "text-white");
-    activeBtn.classList.remove("bg-white", "text-black");
+    // ✅ Gọi đúng tab Home
+    filterProducts('all');
   }
 
-  if (category === 'all') {
-    renderProducts(allProducts);
-  } else {
-    const filtered = allProducts.filter(p => p.category === category);
-    renderProducts(filtered);
+  function renderProducts(products) {
+    productList.innerHTML = products.map((p, i) => `
+      <div class="relative bg-white rounded-2xl shadow-md p-4 text-center border border-gray-200">
+        ${i < 3 ? '<div class="absolute top-2 left-2 bg-red-500 text-white text-xs px-2 py-1 rounded-full">Mới</div>' : ''}
+        <a href="${p.link}" target="_blank" class="block">
+          <img src="${p.image}" alt="${p.name}" class="w-40 h-40 mx-auto object-cover rounded-xl transition hover:scale-105 duration-200" />
+        </a>
+        <h2 class="text-lg font-semibold mt-3">${p.name}</h2>
+      </div>
+    `).join("");
   }
-}
 
+  function filterProducts(category) {
+    // reset tab styles
+    const buttons = document.querySelectorAll(".tab-btn");
+    buttons.forEach(btn => {
+      btn.classList.remove("bg-black", "text-white");
+      btn.classList.add("bg-white", "text-black");
+    });
 
+    // đánh dấu active tab
+    const activeBtn = Array.from(buttons).find(btn =>
+      btn.textContent.trim().toLowerCase() === category.toLowerCase() ||
+      (category === 'all' && btn.textContent.trim().toLowerCase() === 'home')
+    );
+    if (activeBtn) {
+      activeBtn.classList.add("bg-black", "text-white");
+      activeBtn.classList.remove("bg-white", "text-black");
+    }
 
-async function loadProducts() {
-  const querySnapshot = await getDocs(collection(db, "products"));
-  allProducts = [];
+    // lọc sản phẩm
+    if (category === 'all') {
+      renderProducts(allProducts);
+    } else {
+      const filtered = allProducts.filter(p => p.category === category);
+      renderProducts(filtered);
+    }
+  }
 
-  querySnapshot.forEach((doc) => {
-    const data = doc.data();
-    data.id = doc.id;
-    allProducts.push(data);
-  });
+  loadProducts();
+</script>
 
-  renderProducts(allProducts);
-}
-loadProducts();
-  </script>
 
 <script>
   function copyLink() {
